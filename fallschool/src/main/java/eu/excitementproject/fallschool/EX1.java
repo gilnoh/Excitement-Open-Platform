@@ -270,7 +270,8 @@ public class EX1 {
 		// Try to print out the above T-H pair as two bags of lemmas. 
 		// 
 		// You can iterate over Lemma type (you will need to import Lemma class), 
-		// or, you can iterate over Tokens, and use Token.getLemma() to fetch Lemmas. 		
+		// or, you can iterate over Tokens, and use Token.getLemma() to fetch Lemmas. 	
+		// Then, you can access Lemma value, by calling Lemma.getValue(); 
 		
 		System.out.println("ex1_4() method finished");  
 		
