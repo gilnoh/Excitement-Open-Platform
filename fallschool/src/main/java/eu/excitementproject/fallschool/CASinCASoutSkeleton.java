@@ -8,19 +8,17 @@ import org.apache.uima.jcas.JCas;
 import org.uimafit.util.JCasUtil;
 
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Lemma;
-import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 import eu.excitement.type.alignment.AlignedText;
 import eu.excitementproject.eop.lap.LAPAccess;
 import eu.excitementproject.eop.lap.LAPException;
-import eu.excitementproject.eop.lap.PlatformCASProber;
 import eu.excitementproject.eop.lap.dkpro.MaltParserDE;
 import eu.excitementproject.eop.lap.dkpro.MaltParserEN;
-import eu.excitementproject.eop.lap.dkpro.TreeTaggerEN;
 
 /**
  * This class shows two skeleton codes for "CAS-in and CAS-out" example for 
  * those who works on Linguistic Analysis Pipeline "post-processing" type of works. 
+ * (German lemma disambiguation, and English question to statement reformulation) 
  * 
  * @author Gil
  *
@@ -57,9 +55,8 @@ public class CASinCASoutSkeleton {
 		
 		// And there comes the skeleton codes. 
 
-		//JCas result1 = skel1(aJCas); // This method shows how you can update "Lemma" 
-
-		JCas result2 = skel2(aJCas, aLap); // This method shows how you can update "the document text" of CAS.   
+		//JCas result1 = skel1(aJCas); // This method shows how you can update "Lemma".  
+		//JCas result2 = skel2(aJCas, aLap); // This method shows how you can update "the document text" of CAS.   
 		
 	}
 	
@@ -103,7 +100,7 @@ public class CASinCASoutSkeleton {
 				}
 			}
 			
-			for (Lemma lem: JCasUtil.select(textView, Lemma.class)) 
+			for (Lemma lem: JCasUtil.select(hypoView, Lemma.class)) 
 			{
 				// you should run the same thing over Hypothesis too. 
 				// codes ... 
@@ -153,6 +150,9 @@ public class CASinCASoutSkeleton {
 			// TODO Write "new code" 
 			// With the lemmas and dependencies, let's assume that we have somehow found out 
 			// how to convert Hypothesis into a statement format. 
+			 
+			// For example, somethingLike: 
+			// String statement = convertToStatement(hypoView.getDocumentText()); 
 			
 			//  Say, we have found the proper "statement" form of Hypothesis is the following
 			// from the example: 
