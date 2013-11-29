@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Iterator;
+import java.util.Vector;
 import java.util.logging.Logger;
 
 import org.apache.uima.jcas.JCas;
@@ -35,23 +36,33 @@ public class NounNGramExtract {
 		//"./target/EN/dev/" here and 
 		//"./target/EN/test/" here. 
 
-		
 		try
 		{
+			
+//			File test = new File ("./target/EN/test/99.xmi"); 
+//			JCas testCAS = PlatformCASProber.probeXmi(test, null);
+//			JCas tv = testCAS.getView("TextView"); 
+//			JCas hv = testCAS.getView("HypothesisView"); 
+//			System.out.println("dev-" + test.getName() + "-Text part"); 
+//			walkOverNounGrammarFST(tv);  
+//			System.out.println("dev-" + test.getName() + "-Hypothesis part"); 
+//			walkOverNounGrammarFST(hv);  
+//			System.exit(1); 
+			
 			// Iterate over all XMI file, 
 			// Extract uni, bi, tri and quadra-grams that ends with noun. 
 
 			File dir = new File ("./target/EN/dev/"); 
 			for (File f : dir.listFiles())
 			{
-				//File f = new File ("./target/EN/dev/799.xmi"); 
 				JCas aJCas = PlatformCASProber.probeXmi(f, null);
 				JCas textview = aJCas.getView("TextView"); 
 				JCas hypoview = aJCas.getView("HypothesisView"); 
 				System.out.println("dev-" + f.getName() + "-Text part"); 
-				walkOverNounEndingNGrams(textview);  
+				//walkOverNounEndingNGrams(textview);  
+				walkOverNounGrammarFST(textview); 
 				System.out.println("dev-" + f.getName() + "-Hypothesis part"); 
-				walkOverNounEndingNGrams(hypoview);  
+				walkOverNounGrammarFST(hypoview);  
 			}
 			dir = new File ("./target/EN/test/"); 
 			for (File f : dir.listFiles())
@@ -61,9 +72,9 @@ public class NounNGramExtract {
 				JCas textview = aJCas.getView("TextView"); 
 				JCas hypoview = aJCas.getView("HypothesisView"); 
 				System.out.println("test-" + f.getName() + "-Text part"); 
-				walkOverNounEndingNGrams(textview);  
+				walkOverNounGrammarFST(textview);  
 				System.out.println("test-" + f.getName() + "-Hypothesis part"); 
-				walkOverNounEndingNGrams(hypoview);  
+				walkOverNounGrammarFST(hypoview);  
 			}
 
 
@@ -75,6 +86,172 @@ public class NounNGramExtract {
 		}
 				
 	}
+	
+	public static void walkOverNounGrammarFST(JCas view) throws LAPException
+	{
+		
+		// iterate over the cas! record 
+		AnnotationIndex<Annotation> tokenIndex = view.getAnnotationIndex(Token.type); 
+		Iterator<Annotation> tokenIter = tokenIndex.iterator(); 
+		System.out.println("Among " + tokenIndex.size() + " words:"); 
+
+		Vector<Token> tokenHistory = new Vector<Token>(); 
+		Vector<String> posHistory = new Vector<String>(); 
+
+		
+		while(tokenIter.hasNext())
+		{
+
+			Token t = (Token) tokenIter.next(); 
+			//l = t.getLemma(); 
+			POS p = t.getPos(); 
+			String posStr = p.getType().getName().substring(52); 
+
+			tokenHistory.add(t);
+			posHistory.add(posStr); 
+			
+			// start state machine; if meet a noun. 
+			// traverse "prev" token, by its POS. 
+			if (posStr.equalsIgnoreCase("NN") || posStr.equalsIgnoreCase("N") || posStr.equalsIgnoreCase("NP"))
+			{
+				String state = "noun_state"; 
+				int current = posHistory.size() - 1; 
+				int left = posHistory.size() -1; 
+				
+				while (!state.isEmpty())
+				{
+					if (state.equalsIgnoreCase("noun_state"))
+					{
+						// print 
+						for (int i=left; i <= current; i++)
+						{
+							System.out.print(tokenHistory.get(i).getCoveredText()); 
+							System.out.print("/"); 
+							System.out.print(posHistory.get(i)); 
+							System.out.print("\t"); 
+						}
+						System.out.println(); 
+						
+						// set next state
+						if (left == 0) {	
+							state = ""; 
+							break; 
+						}
+						
+						left--; 
+						switch(posHistory.get(left)) {
+							case "NP": 
+							case "NN": 
+							case "N": 
+								state="noun_state";  
+								break; 
+							case "ADJ": 
+								state="adj_state"; 
+								break; 
+							case "ART": 
+								state="det_state"; 
+								break; 
+							case "PP":
+								state="prep_state"; 
+								break; 
+							default: 
+								state=""; 
+								break; 
+						}
+					}
+					else if (state.equals("adj_state"))
+					{
+						// print 
+						for (int i=left; i <= current; i++)
+						{
+							System.out.print(tokenHistory.get(i).getCoveredText()); 
+							System.out.print("/"); 
+							System.out.print(posHistory.get(i)); 
+							System.out.print("\t"); 
+						}
+						System.out.println(); 
+
+						// set next state
+						if (left == 0) {	
+							state = ""; 
+							break; 
+						}
+						
+						left--; 
+						switch(posHistory.get(left)) {
+							// this part was missing ---> 
+							case "ADJ": 
+								state="adj_state"; 
+								break; 
+							// <---- 
+							case "ART": 
+								state="det_state"; 
+								break; 
+							case "PP":
+								state="prep_state"; 
+								break; 
+							default: 
+								state=""; 
+								break; 
+						}
+					}
+					else if(state.equalsIgnoreCase("det_state"))
+					{
+						// set next state
+						if (left == 0) {	
+							state = ""; 
+							break; 
+						}
+						
+						left--; 
+						switch(posHistory.get(left)) {
+							case "PP":
+								state="prep_state"; 
+								break; 
+							default: 
+								state=""; 
+								break; 
+						}
+					}
+					else if (state.equalsIgnoreCase("prep_state"))
+					{
+						// set next state
+						if (left == 0) {	
+							state = ""; 
+							break; 
+						}
+						
+						left--; 
+						switch(posHistory.get(left)) {
+							case "NP": 
+							case "NN": 
+							case "N": 
+								state="noun_state";  
+							break; 
+							
+							default: 
+								state=""; 
+								break; 
+						}
+					}
+					else
+					{
+						if (!state.isEmpty())
+						{
+							throw new LAPException("Internal integrity failure: No such state in FST: " + state); 
+						}
+					}
+				} // while for outter if-else  
+			} // if 
+		} // CAS Token reading while. 
+		
+		tokenHistory.clear(); 
+		posHistory.clear(); 
+	}
+	
+	
+	
+	
 	public static void walkOverNounEndingNGrams(JCas view) throws LAPException 
 	{
 		// iterate over the cas! record 
