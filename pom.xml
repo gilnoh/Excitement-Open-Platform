@@ -33,6 +33,7 @@
 		<module>distsim</module>
 		<module>globalgraphoptimizer</module>
 		<module>lexicalinferenceminer</module>
+                <module>alignmentusageexample</module> 
 	</modules>
 	<dependencyManagement>
 		<dependencies>
