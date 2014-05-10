@@ -5,7 +5,7 @@ import java.util.Iterator;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 
-import static eu.excitementproject.eop.lap.implbase.LAP_ImplBase.*; 
+import static eu.excitementproject.eop.lap.implbase.LAP_ImplBase.*; // TEXTVIEW HYPOTHESISVIEW
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import eu.excitement.type.alignment.Link;
@@ -169,15 +169,19 @@ public class example1 {
 			Target target_H = hypo_targets[1]; 
 			link1.setTSideTarget(target_T); 
 			link1.setHSideTarget(target_H); 
-			// 3) put the "three link information".
+			// 3) put direction and strength 
+			link1.setDirection("Symmetric"); 
+			link1.setStrength(1.0); 
+			// 4) put the "link-information".
 			link1.setAlignerID("testAligner"); // ID of the alinger, or the resource behind the alinger  
-			link1.setVersion("1.0"); // version number of the aligner, or the resource 
-			link1.setInfo("local-entailment"); // detailed information about the relation. 
-			// 4) set begin-end 
+			link1.setAlignerVersion("1.0"); // version number of the aligner, or the resource 
+			link1.setLinkInfo("local-entailment"); // detailed information about the relation.  
+			
+			// 5) set begin-end 
 			// Note that, by convention, we use begin-end of Target of TSideTarget 
 			link1.setBegin(target_H.getBegin()); 
 			link1.setEnd(target_H.getBegin());
-			// 5) add to index 
+			// 6) add to index 
 			link1.addToIndexes(); 
 			// Note that, by convention, we add Link to HSide (on HypothesisView) 
 			// (note that when we prepare the Link in 1), we used HYPOTHESIS view.) 
@@ -186,9 +190,11 @@ public class example1 {
 			Link link2 = new Link(hypoViewOfJCas1); 
 			link2.setTSideTarget(text_targets[3]); 
 			link2.setHSideTarget(hypo_targets[3]); 
+			link1.setDirection("Symmetric"); 
+			link1.setStrength(0.9); 
 			link2.setAlignerID("testAligner"); 
-			link2.setVersion("1.0"); 
-			link2.setInfo("local-entailment"); 
+			link2.setAlignerVersion("1.0"); 
+			link2.setLinkInfo("local-entailment"); 
 			link2.setBegin(hypo_targets[3].getBegin()); 
 			link2.setEnd(hypo_targets[3].getEnd());
 			link2.addToIndexes(); 
@@ -215,6 +221,8 @@ public class example1 {
 				// you can access Link, as normal, annotation. Of course. 
 				System.out.println("Its TSideTarget covers " + l.getTSideTarget().getCoveredText()); 
 				System.out.println("Its HSideTarget covers " + l.getHSideTarget().getCoveredText()); 
+				System.out.println("Link's full type string is: " + l.getID()); 
+				System.out.println("Its strength is: " + l.getStrength()); 
 				
 				myLink = l; // saving for next Q  
 			}
@@ -289,18 +297,15 @@ public class example1 {
 			// caused the Link into existance. 
 		}
 
-		// - Q7: I've heard that Link has "unique" full-ID. 
+		// - Q7: I've heard that each Link has type string. 
 		// How can I access them? 
 		{
 			// use Link's getID() to get full, (or long) ID. 
-			// String fullId = myLink.getID(); 
+			String fullId = myLink.getID(); 
+			System.out.println(fullId); 
 			// note that this ID is actually a concatenation of 
 			// getAlingerID(), getAlingerVersion(), and getLinkInfo()
 			
-			// It is a convention that this long-ID will always identify 
-			// a Link-type instance as "unique". 
-			// (e.g. same long-ID means really the same relation 
-			// denoted by the same aligner.) 
 		}
 	}
 }
