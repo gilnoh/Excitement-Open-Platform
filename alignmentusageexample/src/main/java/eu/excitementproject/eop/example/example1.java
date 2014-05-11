@@ -169,19 +169,37 @@ public class example1 {
 			Target target_H = hypo_targets[1]; 
 			link1.setTSideTarget(target_T); 
 			link1.setHSideTarget(target_H); 
+			
 			// 3) put direction and strength 
 			link1.setDirection("Symmetric"); 
+			// Note on Direction --- direction is a subtype of String, and it only permits 
+			// One of three values. ("HtoT", "TtoH", "Symmetric" -- see its JavaDoc) 
+			// (For example, if you do setDirection("wrong-value") it will cause exception. ) 
 			link1.setStrength(1.0); 
+			// Note on Strength --- it is just a double value. You can use any value. 
+			// However, if your semantic (e.g. local entailment, etc ) has some convention
+			// on normalization --- please follow that. 
+			
 			// 4) put the "link-information".
 			link1.setAlignerID("testAligner"); // ID of the alinger, or the resource behind the alinger  
 			link1.setAlignerVersion("1.0"); // version number of the aligner, or the resource 
 			link1.setLinkInfo("local-entailment"); // detailed information about the relation.  
 			
-			// 5) set begin-end 
+			// 5) mark "Semantic Group Label" 
+			// TBDTBDTBDTBD TO BE DETERMINED  
+			// Semantic group label marks the Link; you can choose one or more 
+			// Labels that will be defined soon. 
+			// such as "LocalEntailment", "LocalContradiction", "alignsToken", etc etc. 
+			// This feature, is provided for the convenience of the consumers of the Links. 
+			// (such as EDAs, or feature extractors, can utilize many different link types 
+			// in a coherent fashion --- e.g. get me all local-entailments, local-contradiction, etc) 
+			
+			// 6) set begin-end 
 			// Note that, by convention, we use begin-end of Target of TSideTarget 
 			link1.setBegin(target_H.getBegin()); 
 			link1.setEnd(target_H.getBegin());
-			// 6) add to index 
+			
+			// 7) add to index 
 			link1.addToIndexes(); 
 			// Note that, by convention, we add Link to HSide (on HypothesisView) 
 			// (note that when we prepare the Link in 1), we used HYPOTHESIS view.) 
