@@ -126,10 +126,11 @@ public class example1 {
 		{
 			triple_on_T = new Target(textViewOfJCas1); 
 			FSArray fs_t = new FSArray(textViewOfJCas1, 3); 
-			Iterator<Dependency> itr = (JCasUtil.select(textViewOfJCas1, Dependency.class)).iterator(); 
+			//Iterator<Dependency> itr = (JCasUtil.select(textViewOfJCas1, Dependency.class)).iterator(); 
+			Iterator<Dependency> itr = JCasUtil.iterator(textViewOfJCas1,  Dependency.class);
 			Dependency dep = itr.next(); 
 			dep = itr.next(); // say, let's pick the 2nd dependency  "a --det--> dog"   
-
+			
 			Token ta = dep.getDependent(); 
 			Token tb = dep.getGovernor(); 
 			// okay. we have (ta - dep - tb)
