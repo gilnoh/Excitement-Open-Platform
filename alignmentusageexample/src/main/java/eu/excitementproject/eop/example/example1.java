@@ -9,6 +9,7 @@ import static eu.excitementproject.eop.lap.implbase.LAP_ImplBase.*; // TEXTVIEW 
 import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 import de.tudarmstadt.ukp.dkpro.core.api.syntax.type.dependency.Dependency;
 import eu.excitement.type.alignment.Link;
+import eu.excitement.type.alignment.Link.Direction;
 import eu.excitement.type.alignment.Target;
 import eu.excitementproject.eop.lap.LAPAccess;
 import eu.excitementproject.eop.lap.dkpro.MaltParserEN;
@@ -171,19 +172,22 @@ public class example1 {
 			link1.setHSideTarget(target_H); 
 			
 			// 3) put direction and strength 
-			link1.setDirection("Symmetric"); 
-			// Note on Direction --- direction is a subtype of String, and it only permits 
-			// One of three values. ("HtoT", "TtoH", "Symmetric" -- see its JavaDoc) 
-			// (For example, if you do setDirection("wrong-value") it will cause exception. ) 
+			link1.setDirection(Direction.Bidirection); 
+			// use setDirection() method to set the direction of the Link instance. 
+			// The argument is an Enum type that is defined within Link class. 
+			// (Note that, the direction is actually represented as a String-subtype within 
+			// the CAS --- directionString --- but the Link class provides ENUM access instead 
+			// of String access with setDirection() and getDirection() as (safer) wrapper. ) 
+			
 			link1.setStrength(1.0); 
 			// Note on Strength --- it is just a double value. You can use any value. 
 			// However, if your semantic (e.g. local entailment, etc ) has some convention
 			// on normalization --- please follow that. 
 			
 			// 4) put the "link-information".
-			link1.setAlignerID("testAligner"); // ID of the alinger, or the resource behind the alinger  
-			link1.setAlignerVersion("1.0"); // version number of the aligner, or the resource 
-			link1.setLinkInfo("local-entailment"); // detailed information about the relation.  
+			link1.setAlignerID("WordNet"); // ID of the alinger, or the resource behind the alinger  
+			link1.setAlignerVersion("3.1"); // version number of the aligner, or the resource 
+			link1.setLinkInfo("synonym"); // detailed information about the relation.  
 			
 			// 5) mark "Semantic Group Label" 
 			// TBDTBDTBDTBD TO BE DETERMINED  
@@ -197,7 +201,7 @@ public class example1 {
 			// 6) set begin-end 
 			// Note that, by convention, we use begin-end of Target of TSideTarget 
 			link1.setBegin(target_H.getBegin()); 
-			link1.setEnd(target_H.getBegin());
+			link1.setEnd(target_H.getEnd());
 			
 			// 7) add to index 
 			link1.addToIndexes(); 
@@ -208,11 +212,11 @@ public class example1 {
 			Link link2 = new Link(hypoViewOfJCas1); 
 			link2.setTSideTarget(text_targets[3]); 
 			link2.setHSideTarget(hypo_targets[3]); 
-			link1.setDirection("Symmetric"); 
-			link1.setStrength(0.9); 
-			link2.setAlignerID("testAligner"); 
-			link2.setAlignerVersion("1.0"); 
-			link2.setLinkInfo("local-entailment"); 
+			link2.setDirection(Direction.TtoH); 
+			link2.setStrength(0.9); 
+			link2.setAlignerID("WordNet"); 
+			link2.setAlignerVersion("3.1"); 
+			link2.setLinkInfo("hypernym"); 
 			link2.setBegin(hypo_targets[3].getBegin()); 
 			link2.setEnd(hypo_targets[3].getEnd());
 			link2.addToIndexes(); 
@@ -237,9 +241,10 @@ public class example1 {
 			{
 				System.out.println("Found a link!");
 				// you can access Link, as normal, annotation. Of course. 
-				System.out.println("Its TSideTarget covers " + l.getTSideTarget().getCoveredText()); 
-				System.out.println("Its HSideTarget covers " + l.getHSideTarget().getCoveredText()); 
+				System.out.println("Its TSideTarget covers: " + l.getTSideTarget().getCoveredText()); 
+				System.out.println("Its HSideTarget covers: " + l.getHSideTarget().getCoveredText()); 
 				System.out.println("Link's full type string is: " + l.getID()); 
+				System.out.println("Its direction is: " + l.getDirection().toString()); 
 				System.out.println("Its strength is: " + l.getStrength()); 
 				
 				myLink = l; // saving for next Q  
@@ -253,7 +258,9 @@ public class example1 {
 		//   Let's see how you do it. 
 		
 		{
+			
 			Target aTarget = myLink.getTSideTarget(); 
+						
 			// We already know that this aTarget has one Token in it. Let's fetch it.  
 			FSArray arr = aTarget.getTargetAnnotations(); 			
 			System.out.println("The last link, T side Target has Token "); 
