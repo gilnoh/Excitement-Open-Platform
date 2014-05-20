@@ -319,8 +319,8 @@ public class example1 {
 			String alingerId = myLink.getAlignerID(); 
 			System.out.println(alingerId); 
 			
-			// This would declare which alinger (or its underlying resource) has 
-			// caused the Link into existance. 
+			// This would declare which aligner (or its underlying resource) has 
+			// caused the Link into existence. 
 		}
 
 		// - Q7: I've heard that each Link has type string. 
